@@ -20,8 +20,8 @@ export function MainContent({ children }: MainContentProps) {
     >
       <Flex
         align="center"
-        w={location.pathname === "/" ? "30%" : { sm: "70%", md: "100%", lg: "60%" }}
-        h={{ sm: "80%", md: "75%", lg: "75%" }}
+        w={location.pathname === "/" ? "30%" : "30%"}
+        h="90%"
         bg="white"
         position="absolute"
         borderRadius={10}

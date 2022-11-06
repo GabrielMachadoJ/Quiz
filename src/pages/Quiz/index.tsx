@@ -1,25 +1,65 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Button, Flex, Icon, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from "@chakra-ui/react";
 import { redirect, useNavigate } from "react-router-dom";
 import { FiCheck, FiXCircle } from "react-icons/fi";
+import axios from "axios";
+import { AssuntoContext } from "../../context/AssuntoContext";
+
+interface IResposta {
+  codigo: number;
+  alternativaCorreta: string;
+  idPergunta: number;
+  resposta: string;
+}
+
+interface IPergunta {
+  id: number;
+  assunto: number;
+  pergunta: string;
+}
+
 
 export function Quiz() {
   const [tabIndex, setTabIndex] = useState<number>(0);
   const [value, setValue] = useState<number>(0);
+  const [perguntas, setPerguntas] = useState<IPergunta[]>([]);
+  const [respostas, setRespostas] = useState<IResposta[]>([]);
+  const [pontuacao, setPontuacao] = useState<number>(0);
+  const { idAssuntoEscolhido, assuntoEscolhido } = useContext(AssuntoContext);
   const navigate = useNavigate();
 
   useEffect(() => {
-    handleTabsChange()
+    handleTabsChange();
   }, [value])
 
   const handleTabsChange = () => {
     if (value >= 10) {
-      navigate("/quiz/")
+      navigate("/");
     } else {
-      setTabIndex(value)
+      setTabIndex(value);
     }
   }
 
+  useEffect(() => {
+    getPerguntas()
+    getRespostas()
+  }, [])
+
+
+  const getPerguntas = async () => {
+    const { data } = await axios.get('http://localhost:8080/pergunta/listar')
+    setPerguntas(data)
+  }
+  const getRespostas = async () => {
+    const { data } = await axios.get('http://localhost:8080/resposta/listar');
+    setRespostas(data)
+  }
+
+  const respostaCorreta = (isCorrect: string) => {
+    if (isCorrect.toUpperCase() === 'CORRETA') {
+      setPontuacao(pontuacao + 5)
+    }
+  }
 
   return (
     <>
@@ -27,9 +67,10 @@ export function Quiz() {
         w="100%"
         h="100%"
         justify="space-between"
+        direction="column"
       >
         <Flex
-          w="50%"
+          w="100%"
           h="100%"
           align="center"
           direction="column"
@@ -63,58 +104,52 @@ export function Quiz() {
               <Tab isDisabled={value != 9}>10</Tab>
             </TabList>
             <TabPanels>
-              <TabPanel>
-                <Text
-                  fontFamily="Roboto, sans serif"
-                  fontSize="4xl"
-                  textColor="gray.700"
-                  mt={20}
-                >
-                  Quais os países que têm a maior e a menor expectativa de vida do mundo?
-                </Text>
-              </TabPanel>
-              <TabPanel>
-                <Text>Pergunta 02</Text>
-              </TabPanel>
-              <TabPanel>
-                <Text>Pergunta 03</Text>
-              </TabPanel>
-              <TabPanel>
-                <Text>Pergunta 04</Text>
-              </TabPanel>
-              <TabPanel>
-                <Text>Pergunta 05</Text>
-              </TabPanel>
-              <TabPanel>
-                <Text>Pergunta 06</Text>
-              </TabPanel>
-              <TabPanel>
-                <Text>Pergunta 07</Text>
-              </TabPanel>
-              <TabPanel>
-                <Text>Pergunta 08</Text>
-              </TabPanel>
-              <TabPanel>
-                <Text>Pergunta 09</Text>
-              </TabPanel>
-              <TabPanel>
-                <Text>Pergunta 10</Text>
-              </TabPanel>
+              {perguntas.map((pergunta) => (
+                (pergunta.assunto === idAssuntoEscolhido)
+                  ?
+                  <TabPanel key={pergunta.id}>
+                    <Text
+                      fontFamily="Roboto, sans serif"
+                      fontSize="4xl"
+                      textColor="gray.700"
+                      mt="5rem"
+                    >
+                      {pergunta.pergunta}
+                    </Text>
+                    {respostas.map((resposta) => (
+                      (resposta.idPergunta === pergunta.id)
+                        ?
+                        <Button key={resposta.codigo} onClick={() => respostaCorreta(resposta.alternativaCorreta)}>{resposta.resposta}</Button>
+                        :
+                        ""
+                    ))}
+                  </TabPanel>
+                  :
+                  ""
+              ))}
             </TabPanels>
           </Tabs>
         </Flex>
         <Flex
-          w="50%"
+          w="100%"
           h="90%"
           p="4"
           justify="flex-end"
           align="center"
           direction="column"
         >
-          <Flex mb="5rem" h="50%" direction="column" justify="space-around">
-            <Button size="lg" colorScheme="green">a) Japão e SerraLeoa <Icon ml="3" as={FiCheck}/></Button>
-            <Button size="lg" colorScheme="red" isDisabled>b) Austrália e Afeganistão<Icon ml="3" as={FiXCircle}/></Button>
-            <Button size="lg" colorScheme="red" isDisabled>c) Itália e Chade<Icon ml="3" as={FiXCircle}/></Button>
+          <Flex w="100%" mb="5rem" gap={4} direction="column" justify="space-between">
+            {/* {
+
+              perguntas.forEach((perguntas) => {
+                respostas.forEach((resposta) => (
+                  if (perguntas.id === resposta.idPergunta) {
+                    setResultadoRespostas
+                  }
+                ))
+              })
+
+            } */}
           </Flex>
           <Button w="80%" size="lg" colorScheme="purple" onClick={() => setValue(value + 1)}>Próxima pergunta</Button>
         </Flex>
@@ -122,3 +157,4 @@ export function Quiz() {
     </>
   )
 }
+

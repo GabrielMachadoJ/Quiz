@@ -1,12 +1,52 @@
+import { useEffect, useContext, useState } from "react";
+import axios from "axios";
 import { Button, Flex, FormControl, FormLabel, HStack, Icon, Image, Input, InputGroup, InputLeftElement, Select, Stack, Text } from "@chakra-ui/react";
-import { useForm } from "react-hook-form";
+import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { Login } from "..";
 import LogoMundoSenai from "../../../assets/logo.png";
 import { FiLogOut, FiUser } from "react-icons/fi";
+import { AssuntoContext } from "../../../context/AssuntoContext"
+import { useNavigate } from "react-router-dom";
+
+interface IForm {
+  nome: string
+  assunto: string
+}
 
 
+interface IAssunto {
+  codigo: number;
+  assunto: string;
+}
 
 export function StartPlay() {
+  const [assuntos, setAssuntos] = useState<IAssunto[]>([]);
+  const { setIdAssuntoEscolhido } = useContext(AssuntoContext);
+  const { setAssuntoEscolhido } = useContext(AssuntoContext);
+  const navigate = useNavigate();
+
+  const methods = useForm<IForm>();
+  const { register } = methods;
+
+
+  useEffect(() => {
+    getAssuntos()
+  }, [])
+
+  const getAssuntos = async () => {
+    const { data } = await axios.get('http://localhost:8080/assunto/listar');
+    setAssuntos(data);
+  }
+
+  const submitData = (data: IForm) => {
+    assuntos.forEach(element => {
+      if (element.assunto === data.assunto) {
+        setIdAssuntoEscolhido(element.codigo)
+      } 
+    });
+    setAssuntoEscolhido(data.assunto)
+    navigate('/quiz')
+  }
 
   return (
     <Flex
@@ -21,29 +61,32 @@ export function StartPlay() {
         src={LogoMundoSenai}
         alt="Logo do mundo senai"
       />
-      <form>
+      <form onSubmit={methods.handleSubmit(submitData)}>
         <Stack
           h="100%"
           w="22vw"
           gap="3"
         >
-            
+
           <Text fontFamily="Poppins, sans serif" fontWeight="500" fontSize="1.2rem">Digite seu nome para começar a jogar</Text>
-          <InputGroup size="lg">
-            <InputLeftElement
-              pointerEvents='none'
-              children={<FiUser color='gray.300' />}
-            />
-            <Input size="lg" type="text" placeholder="Nome" borderColor="blackAlpha.700" focusBorderColor="purple.800" />
-          </InputGroup>
+          <FormControl >
+            <InputGroup size="lg">
+              <InputLeftElement
+                pointerEvents='none'
+                children={<FiUser color='gray.300' />}
+              />
+              <Input isRequired size="lg" type="text" placeholder="Nome" borderColor="blackAlpha.700" focusBorderColor="purple.800" {...register('nome')} />
+            </InputGroup>
+          </FormControl>
           <Text fontFamily="Poppins, sans serif" fontWeight="500" fontSize="1.2rem">Escolha o Assunto</Text>
-          <Select size="lg" focusBorderColor="purple.800" borderColor="blackAlpha.700">
-            <option>Assuntos Diversos</option>
-            <option>Filmes</option>
-            <option>Esportes</option>
-            <option>Tecnologia</option>
+          <Select isRequired size="lg" focusBorderColor="purple.800" borderColor="blackAlpha.700" {...register('assunto')}>
+            <option></option>
+            {assuntos.map((assunto) => (
+              <option key={assunto.codigo} value={assunto.assunto}>{assunto.assunto}</option>
+            ))}
+
           </Select>
-          <Button as="a" size="lg" colorScheme="purple" href="/quiz">
+          <Button size="lg" colorScheme="purple" type="submit">
             Jogar
           </Button>
         </Stack>
