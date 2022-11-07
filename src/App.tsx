@@ -1,5 +1,6 @@
-import { ChakraProvider, theme } from '@chakra-ui/react'
+import { ChakraProvider } from '@chakra-ui/react'
 import { Main } from './routes';
+import { theme } from "./styles/theme";
 
 export function App() {
   return (

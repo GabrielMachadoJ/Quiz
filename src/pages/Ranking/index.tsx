@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Button, Divider, Flex, Image, Td, Text, Tr } from "@chakra-ui/react";
+import { Avatar, Button, Divider, Flex, Image, Td, Text, Tr } from "@chakra-ui/react";
 import axios from "axios";
 import LogoMundoSenai from "../../assets/logo.png";
 import { DataTable } from "../../components/DataTable";
@@ -38,6 +38,9 @@ export function Ranking() {
 
   const getUsuarios = async () => {
     const { data } = await axios.get('http://localhost:8080/usuario/listar')
+    data.sort(function (a: any, b: any) {
+      return b.pontuacao - a.pontuacao;
+    })
     setUsuario(data)
   }
   return (
@@ -61,14 +64,21 @@ export function Ranking() {
       >
         Ranking Geral
       </Text>
+
       <DataTable headers={headers} >
-        {usuarioRanked !== undefined ? usuario.map((data) => (
+        {usuario !== undefined ? usuario.map((data) => (
           <Tr key={data.codigo}>
-            <Td>{data.nome}</Td>
-            <Td>{data.pontuacao}</Td>
+            <Td>
+              <Flex align="center">
+                <Avatar size="sm" name={data.nome} mr="3"/>
+                <Text fontFamily="Roboto, sans serif" fontSize="1.1rem">{data.nome}</Text>
+              </Flex>
+            </Td>
+            <Td><Text fontFamily="Roboto, sans serif" fontSize="1.1rem">{data.pontuacao}</Text></Td>
           </Tr>
         )) : ""}
       </DataTable>
+
       <Flex w="100%" m="10" justify="center" >
         <Button w="90%" size="lg" colorScheme="purple" onClick={() => jogarNovamente()}>Jogar Novamente</Button>
       </Flex>

@@ -120,7 +120,7 @@ export function Quiz() {
           direction="column"
           p={6}
           h="100%"
-          gap="10"
+          gap="3"
         >
           <Flex
             w="100%"
@@ -141,7 +141,7 @@ export function Quiz() {
               textColor="purple.800"
               fontWeight="400"
               fontSize="1rem"
-              
+
             >
               {assuntoEscolhido.toUpperCase()}
             </Text>
@@ -170,12 +170,12 @@ export function Quiz() {
                 (pergunta.assunto === idAssuntoEscolhido)
                   ?
                   <TabPanel key={pergunta.id}>
-                    <Flex justify="center" h="25vh">
+                    <Flex justify="center" h={{ md: "20vh", lg: "25vh" }}>
                       <Text
                         fontFamily="Roboto, sans serif"
-                        fontSize="1.4rem"
+                        fontSize={{ base: "1.1rem", md: "1.2rem", lg: "1.6rem" }}
                         textColor="gray.700"
-                        p="1rem"
+                        p={{ md: "", lg: "1rem" }}
                         textAlign="center"
                       >
                         {pergunta.pergunta}
@@ -185,7 +185,7 @@ export function Quiz() {
                       {respostas.map((resposta) => (
                         (resposta.idPergunta === pergunta.id)
                           ?
-                          <Button isActive={idRespostaEscolhida === resposta.codigo} variant="outline" key={resposta.codigo} onClick={() => respostaSelecionada(resposta.codigo, resposta.alternativaCorreta)} borderColor="blackAlpha.800" colorScheme="purple" size="lg">{resposta.resposta}</Button>
+                          <Button fontSize={{ base: ".6rem", md: ".9rem", lg: "1.3rem" }} isActive={idRespostaEscolhida === resposta.codigo} variant="outline" key={resposta.codigo} onClick={() => respostaSelecionada(resposta.codigo, resposta.alternativaCorreta)} borderColor="blackAlpha.800" colorScheme="purple" size={{ md: "md", lg: "lg" }}>{resposta.resposta}</Button>
                           :
                           ""
                       ))}
@@ -194,8 +194,8 @@ export function Quiz() {
                   :
                   ""
               ))}
-              <Flex m="4 0" w="100%" justify="center">
-                <Button w="94%" size="lg" colorScheme="purple" onClick={() => proximaPergunta()}>Próxima pergunta</Button>
+              <Flex w="100%" justify="center">
+                <Button w="94%" size={{ md: "md", lg: "lg" }} colorScheme="purple" onClick={() => proximaPergunta()}>Próxima pergunta</Button>
               </Flex>
 
             </TabPanels>
