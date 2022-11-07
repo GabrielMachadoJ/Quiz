@@ -1,9 +1,10 @@
 import { useEffect, useState, useContext } from "react";
-import { Button, Flex, Icon, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from "@chakra-ui/react";
+import { Alert, AlertIcon, Button, Flex, Icon, Radio, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useToast } from "@chakra-ui/react";
 import { redirect, useNavigate } from "react-router-dom";
 import { FiCheck, FiXCircle } from "react-icons/fi";
 import axios from "axios";
 import { AssuntoContext } from "../../context/AssuntoContext";
+import { UsuarioContext } from "../../context/UsuarioContext";
 
 interface IResposta {
   codigo: number;
@@ -18,23 +19,47 @@ interface IPergunta {
   pergunta: string;
 }
 
+interface IUsuario {
+  nome: string;
+  pontuacao: number;
+}
+
 
 export function Quiz() {
   const [tabIndex, setTabIndex] = useState<number>(0);
   const [value, setValue] = useState<number>(0);
   const [perguntas, setPerguntas] = useState<IPergunta[]>([]);
   const [respostas, setRespostas] = useState<IResposta[]>([]);
+  const [respostaEscolhida, setRespostaEscolhida] = useState<string>("");
+  const [idRespostaEscolhida, setIdRespostaEscolhida] = useState<number>(0);
   const [pontuacao, setPontuacao] = useState<number>(0);
   const { idAssuntoEscolhido, assuntoEscolhido } = useContext(AssuntoContext);
+  const { nomeDoUsuario } = useContext(UsuarioContext);
   const navigate = useNavigate();
+  const toast = useToast();
+
 
   useEffect(() => {
     handleTabsChange();
   }, [value])
 
+  const createNewUser = async (usuario: IUsuario) => {
+    try {
+      const { data } = await axios.post('http://localhost:8080/cadastrar/usuario', usuario)
+      return data
+    } catch (error: any) {
+      console.log(error.message)
+    }
+  }
+
   const handleTabsChange = () => {
     if (value >= 10) {
-      navigate("/");
+      const novoUsuario = {
+        nome: nomeDoUsuario,
+        pontuacao: pontuacao
+      }
+      createNewUser(novoUsuario);
+      navigate("/quiz/ranking");
     } else {
       setTabIndex(value);
     }
@@ -55,11 +80,32 @@ export function Quiz() {
     setRespostas(data)
   }
 
-  const respostaCorreta = (isCorrect: string) => {
-    if (isCorrect.toUpperCase() === 'CORRETA') {
+  const respostaCorreta = () => {
+    if (respostaEscolhida.toUpperCase() === 'CORRETA') {
       setPontuacao(pontuacao + 5)
     }
   }
+
+  const respostaSelecionada = (id: number, isCerta: string) => {
+    setIdRespostaEscolhida(id)
+    setRespostaEscolhida(isCerta)
+  }
+
+  const proximaPergunta = () => {
+    if (respostaEscolhida !== "") {
+      setValue(value + 1)
+      respostaCorreta()
+      setRespostaEscolhida("")
+    } else {
+      toast({
+        title: "Selecione uma opção",
+        status: "warning",
+        isClosable: true,
+        duration: 1500
+      })
+    }
+  }
+
 
   return (
     <>
@@ -70,25 +116,41 @@ export function Quiz() {
         direction="column"
       >
         <Flex
-          w="100%"
-          h="100%"
           align="center"
           direction="column"
           p={6}
+          h="100%"
           gap="10"
         >
-          <Text
-            fontFamily="Poppins, sans serif"
-            textColor="purple.800"
-            fontWeight="400"
-            fontSize="3rem"
+          <Flex
+            w="100%"
+            direction="column"
+            justify="center"
+            align="center"
           >
-            Perguntas
-          </Text>
+            <Text
+              fontFamily="Poppins, sans serif"
+              textColor="purple.800"
+              fontWeight="400"
+              fontSize="3rem"
+            >
+              Perguntas
+            </Text>
+            <Text
+              fontFamily="Poppins, sans serif"
+              textColor="purple.800"
+              fontWeight="400"
+              fontSize="1rem"
+              
+            >
+              {assuntoEscolhido.toUpperCase()}
+            </Text>
+          </Flex>
           <Tabs
             colorScheme="purple"
             w="100%"
             variant='soft-rounded'
+            align="center"
             index={tabIndex}
           >
             <TabList>
@@ -103,55 +165,41 @@ export function Quiz() {
               <Tab isDisabled={value != 8}>09</Tab>
               <Tab isDisabled={value != 9}>10</Tab>
             </TabList>
-            <TabPanels>
+            <TabPanels h="40vh">
               {perguntas.map((pergunta) => (
                 (pergunta.assunto === idAssuntoEscolhido)
                   ?
                   <TabPanel key={pergunta.id}>
-                    <Text
-                      fontFamily="Roboto, sans serif"
-                      fontSize="4xl"
-                      textColor="gray.700"
-                      mt="5rem"
-                    >
-                      {pergunta.pergunta}
-                    </Text>
-                    {respostas.map((resposta) => (
-                      (resposta.idPergunta === pergunta.id)
-                        ?
-                        <Button key={resposta.codigo} onClick={() => respostaCorreta(resposta.alternativaCorreta)}>{resposta.resposta}</Button>
-                        :
-                        ""
-                    ))}
+                    <Flex justify="center" h="25vh">
+                      <Text
+                        fontFamily="Roboto, sans serif"
+                        fontSize="1.4rem"
+                        textColor="gray.700"
+                        p="1rem"
+                        textAlign="center"
+                      >
+                        {pergunta.pergunta}
+                      </Text>
+                    </Flex>
+                    <Flex h="50%" gap="6" justify="center" direction="column" >
+                      {respostas.map((resposta) => (
+                        (resposta.idPergunta === pergunta.id)
+                          ?
+                          <Button isActive={idRespostaEscolhida === resposta.codigo} variant="outline" key={resposta.codigo} onClick={() => respostaSelecionada(resposta.codigo, resposta.alternativaCorreta)} borderColor="blackAlpha.800" colorScheme="purple" size="lg">{resposta.resposta}</Button>
+                          :
+                          ""
+                      ))}
+                    </Flex>
                   </TabPanel>
                   :
                   ""
               ))}
+              <Flex m="4 0" w="100%" justify="center">
+                <Button w="94%" size="lg" colorScheme="purple" onClick={() => proximaPergunta()}>Próxima pergunta</Button>
+              </Flex>
+
             </TabPanels>
           </Tabs>
-        </Flex>
-        <Flex
-          w="100%"
-          h="90%"
-          p="4"
-          justify="flex-end"
-          align="center"
-          direction="column"
-        >
-          <Flex w="100%" mb="5rem" gap={4} direction="column" justify="space-between">
-            {/* {
-
-              perguntas.forEach((perguntas) => {
-                respostas.forEach((resposta) => (
-                  if (perguntas.id === resposta.idPergunta) {
-                    setResultadoRespostas
-                  }
-                ))
-              })
-
-            } */}
-          </Flex>
-          <Button w="80%" size="lg" colorScheme="purple" onClick={() => setValue(value + 1)}>Próxima pergunta</Button>
         </Flex>
       </Flex>
     </>

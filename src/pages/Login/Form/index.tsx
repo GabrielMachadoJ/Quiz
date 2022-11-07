@@ -1,12 +1,13 @@
 import { useEffect, useContext, useState } from "react";
 import axios from "axios";
-import { Button, Flex, FormControl, FormLabel, HStack, Icon, Image, Input, InputGroup, InputLeftElement, Select, Stack, Text } from "@chakra-ui/react";
+import { Button, Flex, FormControl, FormLabel, HStack, Icon, Image, Input, InputGroup, InputLeftElement, Select, Stack, Text, useToast } from "@chakra-ui/react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { Login } from "..";
 import LogoMundoSenai from "../../../assets/logo.png";
 import { FiLogOut, FiUser } from "react-icons/fi";
 import { AssuntoContext } from "../../../context/AssuntoContext"
 import { useNavigate } from "react-router-dom";
+import { UsuarioContext } from "../../../context/UsuarioContext";
 
 interface IForm {
   nome: string
@@ -23,7 +24,9 @@ export function StartPlay() {
   const [assuntos, setAssuntos] = useState<IAssunto[]>([]);
   const { setIdAssuntoEscolhido } = useContext(AssuntoContext);
   const { setAssuntoEscolhido } = useContext(AssuntoContext);
+  const { setNomeDoUsuario } = useContext(UsuarioContext);
   const navigate = useNavigate();
+  const toast = useToast();
 
   const methods = useForm<IForm>();
   const { register } = methods;
@@ -39,13 +42,23 @@ export function StartPlay() {
   }
 
   const submitData = (data: IForm) => {
-    assuntos.forEach(element => {
-      if (element.assunto === data.assunto) {
-        setIdAssuntoEscolhido(element.codigo)
-      } 
-    });
-    setAssuntoEscolhido(data.assunto)
-    navigate('/quiz')
+    if (data.nome.trim().length !== 0) {
+      setNomeDoUsuario(data.nome)
+      assuntos.forEach(element => {
+        if (element.assunto === data.assunto) {
+          setIdAssuntoEscolhido(element.codigo)
+        }
+      });
+      setAssuntoEscolhido(data.assunto)
+      navigate('/quiz')
+    } else {
+      toast({
+        title: "Nome Inválido",
+        status: "warning",
+        isClosable: true,
+        duration: 1500
+      })
+    }
   }
 
   return (
@@ -57,14 +70,14 @@ export function StartPlay() {
       direction="column"
     >
       <Image
-        w="80%"
+        w="90%"
         src={LogoMundoSenai}
         alt="Logo do mundo senai"
       />
       <form onSubmit={methods.handleSubmit(submitData)}>
         <Stack
           h="100%"
-          w="22vw"
+          w="100%"
           gap="3"
         >
 

@@ -20,7 +20,7 @@ export function MainContent({ children }: MainContentProps) {
     >
       <Flex
         align="center"
-        w={location.pathname === "/" ? "30%" : "30%"}
+        w={location.pathname === "/" ? "40%" : "40%"}
         h="90%"
         bg="white"
         position="absolute"
@@ -32,6 +32,8 @@ export function MainContent({ children }: MainContentProps) {
           h="100%"
           justify="center"
           align="center"
+          position="absolute"
+          overflow="auto"
         >
           {children}
         </Flex>
