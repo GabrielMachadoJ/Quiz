@@ -82,7 +82,7 @@ export function Quiz() {
 
   const respostaCorreta = () => {
     if (respostaEscolhida.toUpperCase() === 'CORRETA') {
-      setPontuacao(pontuacao + 5)
+      setPontuacao(pontuacao + 10)
     }
   }
 
