@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react"
 import { Avatar, Button, Divider, Flex, Image, Td, Text, Tr } from "@chakra-ui/react";
 import axios from "axios";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import LogoMundoSenai from "../../assets/logo.png";
 import { DataTable } from "../../components/DataTable";
-import { Navigate, useNavigate } from "react-router-dom";
+import { UsuarioContext } from "../../context/UsuarioContext";
 
 const headers: { key: string, label: string }[] = [
   { key: "nome", label: "Nome" },
@@ -17,24 +18,18 @@ interface IUsuario {
 }
 export function Ranking() {
   const [usuario, setUsuario] = useState<IUsuario[]>([])
-  const [usuarioRanked, setUsuarioRanked] = useState<IUsuario[]>([])
+  const { pontuacaoDoUsuario } = useContext(UsuarioContext);
   const navigate = useNavigate()
 
   useEffect(() => {
     getUsuarios()
-    rankedUser()
   }, [])
 
   const jogarNovamente = () => {
     navigate("/")
   }
 
-  const rankedUser = () => {
-    usuario.sort(function (a, b) {
-      return b.pontuacao - a.pontuacao;
-    })
-    setUsuarioRanked(usuario)
-  }
+
 
   const getUsuarios = async () => {
     const { data } = await axios.get('http://localhost:8080/usuario/listar')
@@ -49,6 +44,7 @@ export function Ranking() {
       h="100%"
       direction="column"
       align="center"
+      py={2}
     >
       <Image
         w="60%"
@@ -61,6 +57,15 @@ export function Ranking() {
         textColor="purple.800"
         fontWeight="400"
         fontSize="2rem"
+      >
+        Sua pontuação: {pontuacaoDoUsuario}
+      </Text>
+      <Divider m="4" w="90%" />
+      <Text
+        fontFamily="Poppins, sans serif"
+        textColor="purple.800"
+        fontWeight="400"
+        fontSize="1.3rem"
       >
         Ranking Geral
       </Text>
@@ -79,7 +84,7 @@ export function Ranking() {
         )) : ""}
       </DataTable>
 
-      <Flex w="100%" m="10" justify="center" >
+      <Flex py={3} w="100%" m="10" justify="center" >
         <Button w="90%" size="lg" colorScheme="purple" onClick={() => jogarNovamente()}>Jogar Novamente</Button>
       </Flex>
     </Flex>

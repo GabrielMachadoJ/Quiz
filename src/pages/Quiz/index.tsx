@@ -29,14 +29,18 @@ export function Quiz() {
   const [tabIndex, setTabIndex] = useState<number>(0);
   const [value, setValue] = useState<number>(0);
   const [perguntas, setPerguntas] = useState<IPergunta[]>([]);
+  const [questions, setQuestions] = useState<IPergunta[]>([]);
   const [respostas, setRespostas] = useState<IResposta[]>([]);
+  const [answers, setAnswers] = useState<IResposta[]>([]);
   const [respostaEscolhida, setRespostaEscolhida] = useState<string>("");
   const [idRespostaEscolhida, setIdRespostaEscolhida] = useState<number>(0);
   const [pontuacao, setPontuacao] = useState<number>(0);
   const { idAssuntoEscolhido, assuntoEscolhido } = useContext(AssuntoContext);
-  const { nomeDoUsuario } = useContext(UsuarioContext);
+  const { nomeDoUsuario, setPontuacaoDoUsuario } = useContext(UsuarioContext);
   const navigate = useNavigate();
   const toast = useToast();
+  const [cor, setCor] = useState<string[]>([])
+
 
 
   useEffect(() => {
@@ -59,6 +63,7 @@ export function Quiz() {
         pontuacao: pontuacao
       }
       createNewUser(novoUsuario);
+      setPontuacaoDoUsuario(pontuacao)
       navigate("/quiz/ranking");
     } else {
       setTabIndex(value);
@@ -69,6 +74,15 @@ export function Quiz() {
     getPerguntas()
     getRespostas()
   }, [])
+
+  useEffect(() => {
+    getRandomQuestions()
+    getRandomAnswers()
+  }, [perguntas])
+  useEffect(() => {
+    getRandomAnswers()
+  }, [respostas])
+
 
 
   const getPerguntas = async () => {
@@ -81,8 +95,16 @@ export function Quiz() {
   }
 
   const respostaCorreta = () => {
-    if (respostaEscolhida.toUpperCase() === 'CORRETA') {
-      setPontuacao(pontuacao + 10)
+
+    for (let i = 0; i < 10; i++) {
+      if (value === i) {
+        if (respostaEscolhida.toUpperCase() === 'CORRETA') {
+          setPontuacao(pontuacao + 10)
+          cor[i] = ("green.200")
+        } else {
+          cor[i] = ("red.200")
+        }
+      }
     }
   }
 
@@ -93,8 +115,8 @@ export function Quiz() {
 
   const proximaPergunta = () => {
     if (respostaEscolhida !== "") {
-      setValue(value + 1)
       respostaCorreta()
+      setValue(value + 1)
       setRespostaEscolhida("")
     } else {
       toast({
@@ -104,6 +126,34 @@ export function Quiz() {
         duration: 1500
       })
     }
+  }
+
+  const getRandomQuestions = () => {
+    const newQuestions: any = []
+    let indice = 0
+
+    while (newQuestions.length !== perguntas.length) {
+      let data = perguntas[Math.floor(Math.random() * perguntas.length)]
+      if (!newQuestions.includes(data)) {
+        newQuestions[indice] = data
+        indice++
+      }
+    }
+    setQuestions(newQuestions)
+  }
+
+  const getRandomAnswers = () => {
+    const newAnswers: any = []
+    let indice = 0
+
+    while (newAnswers.length !== respostas.length) {
+      let data = respostas[Math.floor(Math.random() * respostas.length)]
+      if (!newAnswers.includes(data)) {
+        newAnswers[indice] = data
+        indice++
+      }
+    }
+    setAnswers(newAnswers)
   }
 
 
@@ -154,19 +204,19 @@ export function Quiz() {
             index={tabIndex}
           >
             <TabList>
-              <Tab isDisabled={value != 0}>01</Tab>
-              <Tab isDisabled={value != 1}>02</Tab>
-              <Tab isDisabled={value != 2}>03</Tab>
-              <Tab isDisabled={value != 3}>04</Tab>
-              <Tab isDisabled={value != 4}>05</Tab>
-              <Tab isDisabled={value != 5}>06</Tab>
-              <Tab isDisabled={value != 6}>07</Tab>
-              <Tab isDisabled={value != 7}>08</Tab>
-              <Tab isDisabled={value != 8}>09</Tab>
-              <Tab isDisabled={value != 9}>10</Tab>
+              <Tab isDisabled={value !== 0} bgColor={value === 0 ? "" : cor[0]}>01</Tab>
+              <Tab isDisabled={value !== 1} bgColor={value === 1 ? "" : cor[1]}>02</Tab>
+              <Tab isDisabled={value !== 2} bgColor={value === 2 ? "" : cor[2]}>03</Tab>
+              <Tab isDisabled={value !== 3} bgColor={value === 3 ? "" : cor[3]}>04</Tab>
+              <Tab isDisabled={value !== 4} bgColor={value === 4 ? "" : cor[4]}>05</Tab>
+              <Tab isDisabled={value !== 5} bgColor={value === 5 ? "" : cor[5]}>06</Tab>
+              <Tab isDisabled={value !== 6} bgColor={value === 6 ? "" : cor[6]}>07</Tab>
+              <Tab isDisabled={value !== 7} bgColor={value === 7 ? "" : cor[7]}>08</Tab>
+              <Tab isDisabled={value !== 8} bgColor={value === 8 ? "" : cor[8]}>09</Tab>
+              <Tab isDisabled={value !== 9} bgColor={value === 9 ? "" : cor[9]}>10</Tab>
             </TabList>
             <TabPanels h="40vh">
-              {perguntas.map((pergunta) => (
+              {questions.map((pergunta) => (
                 (pergunta.assunto === idAssuntoEscolhido)
                   ?
                   <TabPanel key={pergunta.id}>
@@ -182,7 +232,7 @@ export function Quiz() {
                       </Text>
                     </Flex>
                     <Flex h="50%" gap="6" justify="center" direction="column" >
-                      {respostas.map((resposta) => (
+                      {answers.map((resposta) => (
                         (resposta.idPergunta === pergunta.id)
                           ?
                           <Button fontSize={{ base: ".6rem", md: ".9rem", lg: "1.3rem" }} isActive={idRespostaEscolhida === resposta.codigo} variant="outline" key={resposta.codigo} onClick={() => respostaSelecionada(resposta.codigo, resposta.alternativaCorreta)} borderColor="blackAlpha.800" colorScheme="purple" size={{ md: "md", lg: "lg" }}>{resposta.resposta}</Button>
