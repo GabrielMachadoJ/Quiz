@@ -1,8 +1,7 @@
-import { useEffect, useState, useContext } from "react";
-import { Alert, AlertIcon, Button, Flex, Icon, Radio, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useToast } from "@chakra-ui/react";
-import { redirect, useNavigate } from "react-router-dom";
-import { FiCheck, FiXCircle } from "react-icons/fi";
+import { Button, Flex, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useToast } from "@chakra-ui/react";
 import axios from "axios";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AssuntoContext } from "../../context/AssuntoContext";
 import { UsuarioContext } from "../../context/UsuarioContext";
 
@@ -57,7 +56,7 @@ export function Quiz() {
   }
 
   const handleTabsChange = () => {
-    if (value >= 10) {
+    if (value >= 20) {
       const novoUsuario = {
         nome: nomeDoUsuario,
         pontuacao: pontuacao
@@ -96,10 +95,10 @@ export function Quiz() {
 
   const respostaCorreta = () => {
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 20; i++) {
       if (value === i) {
         if (respostaEscolhida.toUpperCase() === 'CORRETA') {
-          setPontuacao(pontuacao + 10)
+          setPontuacao(pontuacao + 5)
           cor[i] = ("green.200")
         } else {
           cor[i] = ("red.200")
@@ -214,6 +213,16 @@ export function Quiz() {
               <Tab isDisabled={value !== 7} bgColor={value === 7 ? "" : cor[7]}>08</Tab>
               <Tab isDisabled={value !== 8} bgColor={value === 8 ? "" : cor[8]}>09</Tab>
               <Tab isDisabled={value !== 9} bgColor={value === 9 ? "" : cor[9]}>10</Tab>
+              <Tab isDisabled={value !== 10} bgColor={value === 10 ? "" : cor[9]}>11</Tab>
+              <Tab isDisabled={value !== 11} bgColor={value === 11 ? "" : cor[9]}>12</Tab>
+              <Tab isDisabled={value !== 12} bgColor={value === 12 ? "" : cor[9]}>13</Tab>
+              <Tab isDisabled={value !== 13} bgColor={value === 13 ? "" : cor[9]}>14</Tab>
+              <Tab isDisabled={value !== 14} bgColor={value === 14 ? "" : cor[9]}>15</Tab>
+              <Tab isDisabled={value !== 15} bgColor={value === 15 ? "" : cor[9]}>16</Tab>
+              <Tab isDisabled={value !== 16} bgColor={value === 16 ? "" : cor[9]}>17</Tab>
+              <Tab isDisabled={value !== 17} bgColor={value === 17 ? "" : cor[9]}>18</Tab>
+              <Tab isDisabled={value !== 18} bgColor={value === 18 ? "" : cor[9]}>19</Tab>
+              <Tab isDisabled={value !== 19} bgColor={value === 19 ? "" : cor[9]}>20</Tab>
             </TabList>
             <TabPanels h="40vh">
               {questions.map((pergunta) => (

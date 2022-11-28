@@ -1,6 +1,5 @@
-import { Divider, Flex, Image, Text } from "@chakra-ui/react";
+import { Flex } from "@chakra-ui/react";
 
-import quiz from "../../assets/quiz.png"
 import { StartPlay } from "./Form";
 
 export function Login() {

@@ -1,6 +1,5 @@
 import { Flex } from "@chakra-ui/react";
 import { ReactNode } from "react";
-import { useLocation } from "react-router-dom";
 
 
 type MainContentProps = {
@@ -8,7 +7,6 @@ type MainContentProps = {
 }
 
 export function MainContent({ children }: MainContentProps) {
-  const location = useLocation()
 
   return (
     <Flex
@@ -16,11 +14,11 @@ export function MainContent({ children }: MainContentProps) {
       h="100vh"
       justify="center"
       align="center"
-      bg="blue.50"
+      bg="gray.800"
     >
       <Flex
         align="center"
-        w={{md: "40%", lg: "30%"}}
+        w={{md: "80%", lg: "80%"}}
         h="90%"
         bg="white"
         position="absolute"

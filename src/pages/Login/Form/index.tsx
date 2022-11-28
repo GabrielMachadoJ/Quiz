@@ -1,19 +1,18 @@
-import { useEffect, useContext, useState } from "react";
+import { Button, Flex, FormControl, Image, Input, InputGroup, InputLeftElement, Select, Stack, Text, useToast } from "@chakra-ui/react";
 import axios from "axios";
-import { Button, Flex, FormControl, FormLabel, HStack, Icon, Image, Input, InputGroup, InputLeftElement, Select, Stack, Text, useToast } from "@chakra-ui/react";
-import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { Login } from "..";
-import LogoMundoSenai from "../../../assets/logo.png";
-import { FiLogOut, FiUser } from "react-icons/fi";
-import { AssuntoContext } from "../../../context/AssuntoContext"
+import { useContext, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { FiUser } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import bigData from "../../../assets/img2.png";
+import logoBigData from "../../../assets/logoBigData.png";
+import { AssuntoContext } from "../../../context/AssuntoContext";
 import { UsuarioContext } from "../../../context/UsuarioContext";
 
 interface IForm {
   nome: string
   assunto: string
 }
-
 
 interface IAssunto {
   codigo: number;
@@ -67,11 +66,26 @@ export function StartPlay() {
       h="100%"
       justify="space-evenly"
       align="center"
-      direction="column"
     >
+      <Flex
+        p='1rem'
+        h="70%"
+        w="60%"
+      >
       <Image
-        w="90%"
-        src={LogoMundoSenai}
+        src={bigData}
+        alt="Logo do mundo senai"
+      />
+      </Flex>
+      <Flex
+        direction='column'
+        w='50%'
+        h='100%'
+        p='1rem'
+        justify='space-around'
+      >
+      <Image
+        src={logoBigData}
         alt="Logo do mundo senai"
       />
       <form onSubmit={methods.handleSubmit(submitData)}>
@@ -107,6 +121,7 @@ export function StartPlay() {
           Curso Técnico de Desenvolvimento de Sistemas
         </Text>
       </form>
+      </Flex>
     </Flex>
   )
 }
